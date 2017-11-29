@@ -1,5 +1,5 @@
-#ifndef ZADANIE4_CAKE_H
-#define ZADANIE4_CAKE_H
+#ifndef ZADANIE4_PIE_H
+#define ZADANIE4_PIE_H
 
 #include<iostream>
 #include<typeinfo>
@@ -59,6 +59,6 @@ template <class R, int radius>
 using CherryPie = Pie<R, radius, int, false>;
 
 template <class R, int radius, class P>
-using ApplePie = Pie<R, radius, P, true>;
+using ApplePie = Pie<R, rad.ius, P, true>;
 
-#endif //ZADANIE4_CAKE_H
+#endif //ZADANIE4_PIE_H
