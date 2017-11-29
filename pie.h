@@ -1,72 +1,64 @@
-#ifndef ZADANIE4_PIE_H
-#define ZADANIE4_PIE_H
+#ifndef ZADANIE4_CAKE_H
+#define ZADANIE4_CAKE_H
 
-template <class R, R radius>
-class CherryPie : Pie{
-    R radius = radius;
-    int initialStock;
-public:
-    CherryPie(int initialStock) : initialStock(initialStock) {};
-    static double getArea() {
-        return radius * radius * 3.14;
-    }
-    int getStock(){
-        return initialStock;
-    }
+#include<iostream>
+#include<typeinfo>
+#include<cassert>
+#include<cmath>
+
+using namespace std;
+
+// użyłem metody szeregu Nilakantha
+constexpr double count_pi(double x){
+    return x < 400 ? 4 / ((2*x * (2*x + 1) * (2*x + 2))) - count_pi(x + 1) : 0; // UWAGA : rekurencja może miec maksymalnie 512 poziomów, więc ja licze do 400, ale już 100 daje precyzję 6 znaków
 };
-template <class R, R radius, class P>
-class ApplePie : Pie{
-    R radius = radius;
+constexpr double PI = 3 + count_pi(1);
+
+template <class R, int radius, class P, bool isSellable>
+class Pie
+{
+protected:
+    int stock;
     P price;
-    int initialStock;
 public:
-    ApplePie(int initialStock, P price) : initialStock(initialStock), price(price) {};
+    Pie();
+    Pie(int initialStock, P price = 0) {
+        assert(initialStock > 0);
+        static_assert(is_integral<R>::value, "R powinno być typem całkowito liczbowym\n");
+        static_assert(is_floating_point<P>::value, "P powinno byc typem zmiennoprzecinkowym\n");
+        this->stock = initialStock;
+        this->price = price;
+    }
+
+//    Obie klasy udostępniają metody publiczne:
+//    static double getArea() - wylicza powierzchnię placka, przy czym placki są idealnymi
+//            kołami
+//    int getStock() - podaje aktualny stan magazynowy placka
     static double getArea() {
-        return radius * radius * 3.14;
+        return PI * radius * radius;
     }
-    int getStock(){
-        return initialStock;
+    int getStock() {
+        return stock;
     }
+
+//    ApplePie udostępnia dodatkowo metody publiczne:
+//    void sell() - zmniejsza stock o 1, stock nie może być mniejszy od 0
+//    P getPrice() - podaje cenę placka
+    template <bool s = isSellable, typename = typename std::enable_if<s, void>::type>
     void sell() {
-        if(initialStock != 0) initialStock --;
+        assert(this->stock > 0);
+        this->stock--;
     }
+    template <bool s = isSellable, typename = typename std::enable_if<s, void>::type>
     P getPrice() {
         return price;
     }
 };
-//- R jest typem parametru radius
-//- radius jest promieniem placka
-//- P jest typem pola price
-//
-//Konstruktor klasy CherryPie:
-//CherryPie(int initialStock)
-//
-//Konstruktor klasy ApplePie:
-//ApplePie(int initialStock, P price)
-//
-//Parametr initialStock określa początkowy stan magazynowy (musi być większy od 0). Należy
-//dokonać walidacji typów - R musi być typem liczbowym całkowitym, a P typem liczbowym
-//zmiennoprzecinkowym. Podanie typów niespełniających tych kryteriów musi powodować błąd
-//kompilacji.
-//
-//Obie klasy udostępniają metody publiczne:
-//static double getArea() - wylicza powierzchnię placka, przy czym placki są idealnymi
-//  kołami
-//int getStock() - podaje aktualny stan magazynowy placka
-//
-//ApplePie udostępnia dodatkowo metody publiczne:
-//void sell() - zmniejsza stock o 1, stock nie może być mniejszy od 0
-//P getPrice() - podaje cenę placka
-//
-//Wartość liczby pi musi być wyliczona w trakcie kompilacji. Można do tego użyć dowolnego
-//algorytmu. Poprawność obliczeń będzie sprawdzana przy założeniu dokładności do 6 miejsca
-//po przecinku.
-//
-//Szablony klas CherryPie i ApplePie powinny być specjalizacją ogólnego szablonu
-template <class R, R radius>
-class Pie{
-};//gdzie etc to pozostałe parametry, których trzeba użyć
-//w implementacji - ich dobór należy do Ciebie).
-//
 
-#endif
+template <class R, int radius>
+using CherryPie = Pie<R, radius, int, false>;
+
+template <class R, int radius, class P>
+using ApplePie = Pie<R, radius, P, true>;
+
+#endif //ZADANIE4_CAKE_H
